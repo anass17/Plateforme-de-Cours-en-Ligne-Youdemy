@@ -134,6 +134,21 @@
         
             return true;
         }
+
+        public static function getAllCategories() {
+            $db = Database::getInstance();
+
+            $categories_list = $db -> selectAll("SELECT * FROM categories ORDER BY cat_id ASC");
+
+            $categories = [];
+
+            foreach($categories_list as $category) {
+                $instance = new Category($category['cat_id'], $category['cat_name']);
+                $categories[] = $instance;
+            }
+
+            return $categories;
+        }
     }
 
 ?>

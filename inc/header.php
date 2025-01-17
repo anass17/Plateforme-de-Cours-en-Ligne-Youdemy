@@ -1,4 +1,4 @@
-<div class="bg-[#2E2E2E]">
+<div class="bg-[#2E2E2E] shadow-lg">
     <div class="max-w-[1250px] mx-auto px-3 h-16 flex justify-between items-center">
         
         <?php if ($role == ''): ?>
@@ -9,6 +9,7 @@
             <div class="*:ml-6 *:font-semibold text-white">
                 <a href="/index.php" class="<?php if ($_SERVER["SCRIPT_NAME"] == "/index.php") {echo "text-[#00A5CF]";} ?>">Home</a>
                 <a href="/pages/courses.php" class="<?php if ($_SERVER["SCRIPT_NAME"] == "/pages/courses.php") {echo "text-[#00A5CF]";} ?>">Courses</a>
+                <a href="/pages/teacher/my-courses.php">My Courses</a>
                 <a href="/pages/login.php">Login</a>
                 <a href="/pages/register.php">Register</a>
             </div>

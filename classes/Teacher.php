@@ -4,6 +4,7 @@
 
         private string $title;
         private string $bio;
+        private array $courses = [];
 
         public function __construct(int $user_id = 0, string $first_name = '', string $last_name = '', string $email = '', string $password = '', string $role = '', string $image_url = '', string $register_date = '', string $status = '', string $title = '', string $bio = '') {
             parent::__construct($user_id, $first_name, $last_name, $email, $password, $role, $image_url, $register_date, $status);
@@ -132,13 +133,37 @@
             $this -> image_url = $result["image_url"];
             $this -> role = $result["role"];
             $this -> status = $result["status"];
+            $this -> title = $result["title"];
             $this -> bio = $result["bio"];
-            $this -> description = $result["description"];
         
             return true;
         }
 
         public function getMyCourses() {
 
+            $db = Database::getInstance();
+
+            if (empty($this -> courses)) {
+                $courses_list = $db -> selectAll("SELECT * FROM courses WHERE course_owner = ?", [$this -> user_id]);
+                $categories = Category::getAllCategories();
+
+                foreach ($courses_list as $course) {
+                    if ($course['type'] == "Video") {
+                        $instance = new VideoCourse($course['course_id'], $course['title'], $course['description'], null, $this, $course['type'], $course['image_path'], $course['file_path'], $course['publish_date']);
+                    } else {
+                        $instance = new DocumentCourse($course['course_id'], $course['title'], $course['description'], null, $this, $course['type'], $course['image_path'], $course['file_path'], $course['publish_date']);
+                    }
+
+                    foreach($categories as $category) {
+                        if ($course['course_category'] == $category -> getCategoryId()) {
+                            $instance -> setCategory($category);
+                        }
+                    }
+
+                    array_push($this -> courses, $instance);
+                }
+            }
+
+            return $this -> courses;
         }
     }

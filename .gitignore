@@ -1,4 +1,5 @@
 /vendor/
+/uploads/
 .env
 composer.json
 composer.lock

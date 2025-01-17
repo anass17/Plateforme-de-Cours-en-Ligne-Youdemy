@@ -25,7 +25,7 @@
 
         <!-- Side Menu -->
 
-        <div class="w-[30%] rounded-md bg-gray-200 px-8 py-7 h-screen sticky top-7">
+        <div class="w-[30%] rounded-md px-8 py-7 h-screen sticky top-7 border-r-2">
             <div>
                 <h3 class="font-semibold text-2xl mb-3">Filter</h3>
                 <div class="pl-3">

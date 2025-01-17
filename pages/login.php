@@ -29,7 +29,7 @@
 
     <div class="flex gap-10 h-screen overflow-hidden">
         <div class="h-screen w-[70%] flex justify-center items-center form-container absolute top-0 left-[30%] transition-all delay-100 duration-300">
-            
+
             <a href="/index.php" class="absolute top-5 left-10 text-[#00A5CF] text-2xl font-semibold" style="font-family: 'Playwrite IN', serif;">Youdemy</a>
 
             <!-- Log in Form -->
@@ -60,7 +60,6 @@
                 <button type="submit" class="w-44 h-12 block mx-auto rounded-full font-semibold text-white bg-[#00A5CF] hover:bg-[#005469] transition-colors">Log In</button>
             </form>
         </div>
-
 
         <div class="w-[30%] bg-gradient-to-r to-[#00A5CF] from-[#005469] h-screen register-bar flex flex-col justify-center items-center text-white px-10 text-center transition duration-300 absolute top-0 left-0">
             <h2 class="mb-10 text-3xl font-bold">New Here?</h2>

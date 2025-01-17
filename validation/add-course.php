@@ -4,18 +4,14 @@
 
     require __DIR__ . '/../classes/Database.php';
     require __DIR__ . '/../classes/Security.php';
+    require __DIR__ . '/../classes/Category.php';
     require __DIR__ . '/../classes/User.php';
     require __DIR__ . '/../classes/Teacher.php';
     require __DIR__ . '/../classes/Course.php';
     require __DIR__ . '/../classes/VideoCourse.php';
     require __DIR__ . '/../classes/DocumentCourse.php';
-    require __DIR__ . '/../classes/Category.php';
 
     $authorized_roles = ['teacher'];
-
-    echo "<pre>";
-    print_r($_FILES);
-    echo "</pre>";
 
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $CSRF_token = isset($_POST['CSRF_token']) ? $_POST['CSRF_token'] : '';
@@ -64,12 +60,22 @@
         // Insert New Course
 
         if ($course_type == "document") {
-            // $course = new D
+            $course = new DocumentCourse(0, $course_title, $course_description, $category, $teacher, 'document');
+
+            // Upload Course Document
+
+            if (isset($_FILES['course-file'])) {
+                if (!$course -> uploadDocument($_FILES['course-file'])) {
+                    $_SESSION["errors"] = $course -> getErrors();
+                    header('Location: /pages/login.php');
+                    exit;
+                }
+            }
         } else if ($course_type == "video") {
 
             $course = new VideoCourse(0, $course_title, $course_description, $category, $teacher, 'video');
 
-            // Upload Course file
+            // Upload Course Video
 
             if (isset($_FILES['course-file'])) {
                 if (!$course -> uploadVideo($_FILES['course-file'])) {

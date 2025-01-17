@@ -23,25 +23,14 @@
 
         // If CSRF Token is Invalid
 
-        $role = Security::isCSRFTokenValid($CSRF_token);
-
-        if (!$role) {
+        if (!Security::isCSRFTokenValid($CSRF_token)) {
             $_SESSION['errors'] = ['Invalid CSRF Token'];
             header('Location: /pages/auth.php');
             exit;
         }
 
-        if ($role == "student") {
-            $user = new Student(0, '', '', $email, $password);
-        } else if ($role == "teacher") {
-            $user = new Teacher(0, '', '', $email, $password);
-        } else if ($role == "admin") {
-            $user = new Admin(0, '', '', $email, $password);
-        } else {
-            $_SESSION['errors'] = ["Error! Something went wrong."];
-            header('Location: /pages/login.php');
-            exit;
-        }
+
+        $user = new Student(0, '', '', $email, $password);
 
         if (!$user -> login()) {
             $_SESSION['errors'] = $user -> getErrors();

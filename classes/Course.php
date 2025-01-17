@@ -8,8 +8,8 @@
         protected string $publish_date;
         protected string $type;
         protected string $file_path;
-        protected Category $category;
-        protected User $teacher;
+        protected Category|null $category;
+        protected User|null $teacher;
         protected array $errors = [];
 
         public function __construct(int $course_id = 0, string $course_title = '', string $description = '', Category|null $category = null, User|null $teacher = null, string $type = '', string $image_path = '', string $file_path = '', string $publish_date = '') {
@@ -69,6 +69,9 @@
         }
 
         public function getImagePath() {
+            if ($this -> image_path == "") {
+                return "/uploads/images/courses/default.jpg";
+            }
             return htmlspecialchars($this -> image_path);
         }
 
@@ -86,6 +89,10 @@
 
         public function getCategory() {
             return $this -> category;
+        }
+
+        public function getTeacher() {
+            return $this -> teacher;
         }
 
         public function getErrors() {

@@ -31,6 +31,10 @@
             return $this -> cat_name;
         }
 
+        public function getErrors() {
+            return $this -> errors;
+        }
+
         // ------------------------------------
         // Methods
         // ------------------------------------
@@ -108,13 +112,20 @@
             }
         }
 
-        public function loadCategory(int $id) {
+        public function loadCategory(int|string $id) {
             $db = Database::getInstance();
+
+            try {
+                $id = (int) $id;
+            } catch (Exception $e) {
+                Security::logError(__CLASS__ . " -> Invalid Category ID: " . $e -> getMessage());
+                return false;
+            }
         
             $result = $db -> select('SELECT * FROM categories WHERE cat_id = ?', [$id]);
         
             if (!$result) {
-                $this -> errors[] = "This category does not exist";
+                Security::logError(__CLASS__ . " -> This category does not exist");
                 return false;
             }
             

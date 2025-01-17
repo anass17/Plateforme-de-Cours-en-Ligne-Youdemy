@@ -82,7 +82,7 @@
 
             self::createAccessToken((int) $cookie_params[0]);
 
-            return $result["role"];
+            return $result;
         }
 
         public static function deleteAccessToken() : void {
@@ -192,6 +192,17 @@
             }
             return true;
         }
+
+        // ------------------------------------
+        // Log Errors
+        // ------------------------------------
+
+        public static function logError($error) : void {
+            $file = fopen(__DIR__ . '/../errors_log.txt', 'a');
+            fwrite($file, "$error \n");
+            fclose($file);
+        }
+
 
     }
 

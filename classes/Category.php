@@ -39,7 +39,7 @@
         // Methods
         // ------------------------------------
 
-        public function createCategory() {
+        public function createCategory() : bool {
 
             $db = Database::getInstance();
             
@@ -67,9 +67,11 @@
             }
 
             $this -> cat_id = $insert_id;
+
+            return true;
         }
 
-        public function updateCategory() {
+        public function updateCategory() : bool {
 
             $db = Database::getInstance();
             
@@ -94,9 +96,11 @@
                 $this -> errors[] = "Could not process your request";
                 return false;
             }
+
+            return true;
         }
 
-        public function deleteCategory() {
+        public function deleteCategory() : bool {
 
             $db = Database::getInstance();
 
@@ -110,6 +114,8 @@
                 $this -> errors[] = "Could not process your request";
                 return false;
             }
+
+            return true;
         }
 
         public function loadCategory(int|string $id) {

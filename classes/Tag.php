@@ -35,7 +35,7 @@
         // Methods
         // ------------------------------------
 
-        public function createTag() {
+        public function createTag() : bool {
 
             $db = Database::getInstance();
             
@@ -63,9 +63,11 @@
             }
 
             $this -> tag_id = $insert_id;
+
+            return true;
         }
 
-        public function updateTag() {
+        public function updateTag() : bool {
 
             $db = Database::getInstance();
             
@@ -90,9 +92,11 @@
                 $this -> errors[] = "Could not process your request";
                 return false;
             }
+
+            return true;
         }
 
-        public function deleteTag() {
+        public function deleteTag() : bool {
 
             $db = Database::getInstance();
 
@@ -106,6 +110,8 @@
                 $this -> errors[] = "Could not process your request";
                 return false;
             }
+
+            return true;
         }
 
         public function loadTag(int $id) {
@@ -122,6 +128,25 @@
             $this -> tag_name = $result["tag_name"];
         
             return true;
+        }
+
+        // ------------------------------------
+        // Static Methods
+        // ------------------------------------
+
+        public static function getAllTags() {
+            $db = Database::getInstance();
+
+            $tags_list = $db -> selectAll("SELECT * FROM tags ORDER BY tag_id ASC");
+
+            $tags = [];
+
+            foreach($tags_list as $tag) {
+                $instance = new Tag($tag['tag_id'], $tag['tag_name']);
+                $tags[] = $instance;
+            }
+
+            return $tags;
         }
     }
 

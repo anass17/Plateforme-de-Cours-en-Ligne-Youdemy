@@ -62,12 +62,6 @@
 
         public function select(string $sql, array|null $data = null) {
 
-            // Only Select statements are allowed
-
-            if (preg_match('/^SELECT/i', $sql) == 0) {
-                return false;
-            }
-
             // Execute Statment
 
             try {
@@ -75,7 +69,8 @@
                 $stmt -> execute($data);
 
                 return $stmt -> fetch();
-            } catch (PDOException) {
+            } catch (PDOException $e) {
+                Security::logError(__CLASS__ . " -> Error in the SQL: " . $e);
                 return [];
             }
         }
@@ -83,13 +78,6 @@
         // Method to execute a select statement and fetch all rows
 
         public function selectAll(string $sql, array|null $data = null) {
-
-            // Only Select statements are allowed
-
-            if (preg_match('/^SELECT/i', $sql) == 0) {
-                $this -> error = "The sql used in this method was not SELECT Query";
-                return false;
-            }
 
             // Execute Statment
 
@@ -99,7 +87,8 @@
 
                 return $stmt -> fetchAll();
             } catch (PDOException $e) {
-                $this -> error = "Error in the SQL -> " . $e;
+                // $this -> error = "Error in the SQL -> " . $e;
+                Security::logError(__CLASS__ . " -> Error in the SQL: " . $e);
                 return [];
             }
         }
@@ -138,7 +127,7 @@
                 }
                 return false;
             } catch (Exception $e) {
-                $this -> error = "This error happend: {$e -> getMessage()}";
+                Security::logError(__CLASS__ . " -> Error in the SQL: " . $e);
                 return false;
             }
         }

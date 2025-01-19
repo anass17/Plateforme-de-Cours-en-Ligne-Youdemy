@@ -194,12 +194,25 @@
         }
 
         // ------------------------------------
+        // authorised access
+        // ------------------------------------
+
+        public static function isAuthorized($role, $possible_roles) {
+            if (!in_array($role, $possible_roles)) {
+                return false;
+            }
+            
+            return true;
+        }
+
+        // ------------------------------------
         // Log Errors
         // ------------------------------------
 
         public static function logError($error) : void {
             $file = fopen(__DIR__ . '/../errors_log.txt', 'a');
-            fwrite($file, "$error \n");
+            fwrite($file, "\n$error \n");
+            fwrite($file, "-----------------------------------");
             fclose($file);
         }
 

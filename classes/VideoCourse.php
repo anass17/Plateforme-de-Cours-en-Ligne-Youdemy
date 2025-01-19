@@ -1,6 +1,11 @@
 <?php
     class VideoCourse extends Course {
 
+        public function __construct(int $course_id = 0, string $course_title = '', string $description = '', Category|null $category = null, User|null $teacher = null, string $image_path = '', string $file_path = '', string $publish_date = '', int $enrollements_count = 0) {
+            parent::__construct($course_id, $course_title, $description, $category, $teacher, $image_path, $file_path, $publish_date, $enrollements_count);
+            $this -> type = "Video";
+        }
+
         // ------------------------------------
         // Methods
         // ------------------------------------
@@ -35,7 +40,7 @@
                 $this -> category -> getCategoryId(),
                 $this -> image_path,
                 $this -> teacher -> getUserId(),
-                'video',
+                $this -> type,
                 $this -> file_path
             ];
 
@@ -80,6 +85,22 @@
             $this -> file_path = $file_path;
 
             return true;
+        }
+
+        public function displayCourse() : void {
+            echo 
+            "<div class='py-8'>
+                <div class='flex justify-center items-center gap-3'>
+                    <a href='{$this -> file_path}' target='_blank' class='bg-[#00A5CF] block text-white px-6 py-2 rounded font-semibold'>Open in New Tab</a>
+                    <a href='{$this -> file_path}' download class='bg-[#00A5CF] block text-white px-6 py-2 rounded font-semibold'>Download Video</a>
+                </div>
+
+                <div class='px-7 mt-6'>
+                    <video src='{$this -> file_path}' class='w-full' controls>
+                        Your Browser does not support this video type
+                    </video>
+                </div>
+            </div>";
         }
     }
 ?>

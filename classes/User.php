@@ -70,6 +70,10 @@
             return htmlspecialchars($this -> last_name);
         }
 
+        public function getFullName() {
+            return $this -> getFirstName() . " " . $this -> getLastName(); 
+        }
+
         public function getEmail() {
             return htmlspecialchars($this -> email);
         }
@@ -92,10 +96,10 @@
 
         public function getImageUrl() {
             if ($this -> image_url == "") {
-                return "/assets/imgs/users/default.webp";
+                return htmlspecialchars("/uploads/images/users/default.webp");
             }
 
-            return $this -> image_url;
+            return htmlspecialchars($this -> image_url);
         }
 
         public function getErrors() {

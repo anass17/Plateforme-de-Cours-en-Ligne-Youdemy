@@ -149,9 +149,9 @@
 
                 foreach ($courses_list as $course) {
                     if ($course['type'] == "Video") {
-                        $instance = new VideoCourse($course['course_id'], $course['title'], $course['description'], null, $this, $course['type'], $course['image_path'], $course['file_path'], $course['publish_date']);
+                        $instance = new VideoCourse($course['course_id'], $course['title'], $course['description'], null, $this, $course['image_path'], $course['file_path'], $course['publish_date']);
                     } else {
-                        $instance = new DocumentCourse($course['course_id'], $course['title'], $course['description'], null, $this, $course['type'], $course['image_path'], $course['file_path'], $course['publish_date']);
+                        $instance = new DocumentCourse($course['course_id'], $course['title'], $course['description'], null, $this, $course['image_path'], $course['file_path'], $course['publish_date']);
                     }
 
                     foreach($categories as $category) {

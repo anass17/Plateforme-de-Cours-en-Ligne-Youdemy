@@ -43,6 +43,12 @@
             return $formated_date;
     
         }
+
+        public static function pretty_print($obj) {
+            echo '<pre>';
+            print_r($obj);
+            echo '<pre>';
+        }
     }
 
     

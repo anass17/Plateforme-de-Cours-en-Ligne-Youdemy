@@ -101,7 +101,7 @@
             return true;
         }
 
-        public function subscribeToCourse(int $course_id): bool {
+        public function subscribeToCourse(int|string $course_id): bool {
             $db = Database::getInstance();
 
             $columns = [
@@ -114,7 +114,7 @@
                 $course_id
             ];
 
-            if (!$db -> insert('enrollements', $columns, $paramaters)) {
+            if ($db -> insert('enrollement', $columns, $paramaters) === false) {
                 $this -> errors[] = "Could not enroll you in this course";
                 return false;
             }

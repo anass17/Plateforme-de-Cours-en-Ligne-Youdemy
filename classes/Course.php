@@ -8,20 +8,21 @@
         protected string $publish_date;
         protected string $type;
         protected string $file_path;
+        protected string $enrollements_count;
         protected Category|null $category;
         protected User|null $teacher;
         protected array $errors = [];
 
-        public function __construct(int $course_id = 0, string $course_title = '', string $description = '', Category|null $category = null, User|null $teacher = null, string $type = '', string $image_path = '', string $file_path = '', string $publish_date = '') {
+        public function __construct(int $course_id = 0, string $course_title = '', string $description = '', Category|null $category = null, User|null $teacher = null, string $image_path = '', string $file_path = '', string $publish_date = '', int $enrollements_count = 0) {
             $this -> course_id = $course_id;
             $this -> title = $course_title;
             $this -> description = $description;
             $this -> image_path = $image_path;
             $this -> publish_date = $publish_date;
-            $this -> type = $type;
             $this -> category = $category;
             $this -> teacher = $teacher;
             $this -> file_path = $file_path;
+            $this -> enrollements_count = $enrollements_count;
         }
         
         // ------------------------------------
@@ -87,12 +88,16 @@
             return htmlspecialchars($this -> file_path);
         }
 
-        public function getCategory() {
+        public function getCategory() : Category {
             return $this -> category;
         }
 
-        public function getTeacher() {
+        public function getTeacher() : Teacher {
             return $this -> teacher;
+        }
+
+        public function getEnrollementsCount() {
+            return $this -> enrollements_count;
         }
 
         public function getErrors() {
@@ -134,6 +139,130 @@
             return true;
         }
 
+        public function is_subscribed(int $user_id) : bool {
+            $db = Database::getInstance();
+
+            $sql = "SELECT * FROM enrollement where user_id = ? and course_id = ?";
+
+            if($db -> select($sql, [$user_id, $this -> course_id])) {
+                return true;
+            }
+
+            return false;
+
+        }
+
+        public function deleteCourse() : bool {
+
+            $db = Database::getInstance();
+
+            if (
+                empty($this -> course_id)
+            ) {
+                array_push($this -> errors, "Could not process your request");
+                return false;
+            }
+
+            $data = [
+                $this -> course_id,
+            ];
+
+            if (!$db -> delete('courses', 'course_id = ?', $data)) {
+                array_push($this -> errors, "Could not save your changes");
+                return false;
+            }
+
+            return true;
+        }
+
+        // ------------------------------------
+        // Static Methods
+        // ------------------------------------
+
+        public static function getAllCourses() {
+
+            $db = Database::getInstance();
+
+            $sql = 
+            "WITH numbered_rows AS (
+                select *, ROW_NUMBER() OVER (partition by course_category ORDER BY course_id) as row_num 
+                from courses
+            )
+
+            select NR.course_id, NR.title as title, description, image_path, publish_date, type, 
+            course_owner, cat_name, user_id, first_name, last_name, 
+            NR.course_category as course_category, count,
+            if(en_count is null, 0, en_count) as en_count
+            
+            from numbered_rows NR 
+            join categories on categories.cat_id = NR.course_category 
+            join users U on U.user_id = NR.course_owner 
+            join (select course_category, count(*) as count from courses group by course_category) 
+            as CT on CT.course_category = NR.course_category
+            left join (select course_id, count(*) as en_count from enrollement group by course_id) 
+            as EN on EN.course_id = NR.course_id
+            where row_num <= 6;
+            ";
+
+            $result = $db -> selectAll($sql);
+
+            $courses = [];
+            $counts = [];
+
+            foreach($result as $row) {
+                if ($row['type'] == "Video") {
+                    $instance =  new VideoCourse($row['course_id'], $row['title'], $row['description'], null, new Teacher($row['user_id'], $row['first_name'], $row['last_name']), $row['image_path'], '', $row['publish_date'], $row['en_count']);
+                } else if ($row['type'] == "Document") {
+                    $instance =  new DocumentCourse($row['course_id'], $row['title'], $row['description'], null, new Teacher($row['user_id'], $row['first_name'], $row['last_name']), $row['image_path'], '', $row['publish_date'], $row['en_count']);
+                }
+                $courses[$row['cat_name']][] = $instance;
+                $counts[$row['cat_name']] = $row['count'];
+                
+            }
+
+            return [$courses, $counts];
+            
+        }
+
+        public static function getCourse(string $id) {
+            $db = Database::getInstance();
+
+            $sql = "SELECT C.course_id as course_id, C.title as title, description, image_path, file_path, publish_date, type, 
+            course_owner, cat_name, user_id, first_name, last_name, email, role, image_url as user_image, register_date, U.title as teacher_title, bio,
+            C.course_category as course_category, cat_name,
+            if(en_count is null, 0, en_count) as en_count
+            
+            from courses C
+            join categories on categories.cat_id = C.course_category 
+            join users U on U.user_id = C.course_owner 
+            left join (select course_id, count(*) as en_count from enrollement group by course_id) 
+            as EN on EN.course_id = C.course_id
+            WHERE C.course_id = ?
+            ";
+
+            $result = $db -> select($sql, [$id]);
+
+            if (!$result) {
+                return false;
+            }
+
+            $teacher = new Teacher($result['user_id'], $result['first_name'], $result['last_name'], $result['email'], '', $result['role'], $result['user_image'], $result['register_date'], '', $result['teacher_title'], $result['bio']);
+            $category = new Category($result['course_category'], $result['cat_name']);
+
+            if ($result['type'] == "Video") {
+                $instance =  new VideoCourse($result['course_id'], $result['title'], $result['description'], $category, $teacher, $result['image_path'], $result['file_path'], $result['publish_date'], $result['en_count']);
+            } else {
+                $instance =  new DocumentCourse($result['course_id'], $result['title'], $result['description'], $category, $teacher, $result['image_path'], $result['file_path'], $result['publish_date'], $result['en_count']);
+            }
+            
+            return $instance;
+        }
+
+        // ------------------------------------
+        // Abstract Methods
+        // ------------------------------------
+
+        public abstract function displayCourse() : void;
 
         // public function updatePost() {
         //     if (!empty($this -> errors)) {
@@ -171,29 +300,7 @@
 
         // // Method to delete a post
 
-        // public function deletePost() {
-        //     if (!empty($this -> errors)) {
-        //         return false;
-        //     }
-
-        //     if (
-        //         empty($this -> id)
-        //     ) {
-        //         array_push($this -> errors, "Could not process your request");
-        //         return false;
-        //     }
-
-        //     $data = [
-        //         $this -> id,
-        //     ];
-
-        //     if (!$this -> db -> delete('posts', 'post_id = ?', $data)) {
-        //         array_push($this -> errors, "Could not save your changes");
-        //         return false;
-        //     }
-
-        //     return true;
-        // }
+        
 
         // public function getAllPosts() {
         //     $posts = $this -> db -> select("SELECT * from posts join users on users.user_id = posts.post_author ORDER BY post_id DESC");

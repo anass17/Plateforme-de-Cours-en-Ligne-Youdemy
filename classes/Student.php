@@ -123,10 +123,37 @@
         }
 
         public function loadMySubscriptions() {
+
+            if (!empty($this -> subscriptions)) {
+                return $this -> subscriptions;
+            }
+
             $db = Database::getInstance();
 
-            $results = $db -> selectAll('SELECT * FROM enrollements WHERE user_id = ?', [$this -> user_id]);
+            $SQL = 
+            'SELECT C.*, C.title as course_title, U.*, Cat.* FROM courses C 
+            join enrollement EN on C.course_id = EN.course_id 
+            join categories Cat on Cat.cat_id = C.course_category 
+            join users U on C.course_owner = U.user_id 
+            WHERE EN.user_id = ?';
 
+            $result = $db -> selectAll($SQL, [$this -> user_id]);
+
+            $this -> subscriptions = [];
+
+            foreach($result as $row) {
+                $teacher = new Teacher($row['user_id'], $row['first_name'], $row['last_name']);
+                $category = new Category($row['cat_id'], $row['cat_name']);
+
+                if ($row['type'] == "Video") {
+                    $course = new VideoCourse($row['course_id'], $row['course_title'], $row['description'], $category, $teacher, $row['image_path'], $row['file_path'], $row['publish_date']);
+                } else {
+                    $course = new DocumentCourse($row['course_id'], $row['course_title'], $row['description'], $category, $teacher, $row['image_path'], $row['file_path'], $row['publish_date']);
+                }
+                $this -> subscriptions[] = $course;
+            }
+
+            return $this -> subscriptions;
         }
     }
 

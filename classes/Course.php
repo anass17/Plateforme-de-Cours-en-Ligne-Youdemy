@@ -183,6 +183,8 @@
 
             $db = Database::getInstance();
 
+            $limit = 6;
+
             $sql = 
             "WITH numbered_rows AS (
                 select *, ROW_NUMBER() OVER (partition by course_category ORDER BY course_id) as row_num 
@@ -201,7 +203,7 @@
             as CT on CT.course_category = NR.course_category
             left join (select course_id, count(*) as en_count from enrollement group by course_id) 
             as EN on EN.course_id = NR.course_id
-            where row_num <= 6;
+            where row_num <= $limit;
             ";
 
             $result = $db -> selectAll($sql);
@@ -256,6 +258,41 @@
             }
             
             return $instance;
+        }
+
+        public static function getPageCourses(string $category, int $page) {
+
+            $db = Database::getInstance();
+
+            $limit = 6;
+            $offset = $page * $limit;
+
+            $SQL = "SELECT C.*, U.*, C.title as course_title, Cat.*,
+            if(en_count is null, 0, en_count) as en_count
+            
+            from courses C
+            join categories Cat on Cat.cat_id = C.course_category 
+            join users U on U.user_id = C.course_owner 
+            left join (select course_id, count(*) as en_count from enrollement group by course_id) 
+            as EN on EN.course_id = C.course_id
+            WHERE cat_name = ?
+            limit $offset,$limit";
+
+            $result = $db -> selectAll($SQL, [$category]);
+
+            $courses = [];
+
+            foreach($result as $row) {
+                if ($row['type'] == "Video") {
+                    $instance =  new VideoCourse($row['course_id'], $row['course_title'], $row['description'], null, new Teacher($row['user_id'], $row['first_name'], $row['last_name']), $row['image_path'], '', $row['publish_date'], $row['en_count']);
+                } else if ($row['type'] == "Document") {
+                    $instance =  new DocumentCourse($row['course_id'], $row['course_title'], $row['description'], null, new Teacher($row['user_id'], $row['first_name'], $row['last_name']), $row['image_path'], '', $row['publish_date'], $row['en_count']);
+                }
+                $courses[] = $instance;
+                
+            }
+
+            return $courses;
         }
 
         // ------------------------------------

@@ -161,7 +161,7 @@
             try {
                 return $stmt -> execute($params);
             } catch (Exception $e) {
-                $this -> error = "You have this error: $e";
+                Security::logError(__CLASS__ . " -> Error in the SQL: " . $e);
                 return false;
             }
 

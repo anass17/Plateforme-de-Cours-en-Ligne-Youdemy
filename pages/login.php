@@ -4,8 +4,16 @@
     require __DIR__ . '/../classes/Database.php';
     require __DIR__ . '/../classes/Security.php';
 
-    if (Security::isAccessTokenValid()) {
-        header('Location: /index.php');
+    $user_row = Security::isAccessTokenValid();
+
+    if ($user_row) {
+        if ($user_row['role'] == 'student') {
+            header('Location: /pages/courses.php');
+        } else if ($user_row['role'] == 'teacher') {
+            header('Location: /pages/teacher/my-courses.php');
+        } else {
+            header('Location: /pages/admin/dashboard.php');
+        }
         exit;
     }
 

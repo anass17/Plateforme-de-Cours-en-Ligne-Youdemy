@@ -1,5 +1,32 @@
 <?php
-    $role = "";
+    session_start();
+
+    require __DIR__ . '/../../classes/Database.php';
+    require __DIR__ . '/../../classes/Security.php';
+    require __DIR__ . '/../../classes/Category.php';
+    require __DIR__ . '/../../classes/Course.php';
+    require __DIR__ . '/../../classes/VideoCourse.php';
+    require __DIR__ . '/../../classes/DocumentCourse.php';
+    require __DIR__ . '/../../classes/User.php';
+    require __DIR__ . '/../../classes/Student.php';
+    require __DIR__ . '/../../classes/Teacher.php';
+    require __DIR__ . '/../../classes/Admin.php';
+    require __DIR__ . '/../../classes/Helpers.php';
+
+    $authorized_roles = ['admin'];
+
+    $user_row = Security::isAccessTokenValid();
+
+    if (!$user_row) {
+        header('Location: /pages/login.php');
+        exit;
+    }
+
+    $role = $user_row['role'];
+
+    $user = new Admin($user_row["user_id"], $user_row['first_name'], $user_row['last_name'], $user_row['email'], '', $user_row['role'], $user_row['image_url']);
+
+    Security::authorizedAccess($user, $authorized_roles);
 ?>
 
 <!DOCTYPE html>
@@ -71,6 +98,7 @@
         </div>
     </div>
     
+    <script src='/assets/js/script.js'></script>
 
 </body>
 </html>

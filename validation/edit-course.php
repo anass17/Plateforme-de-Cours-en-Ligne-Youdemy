@@ -15,12 +15,12 @@
 
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $CSRF_token = isset($_POST['CSRF_token']) ? $_POST['CSRF_token'] : '';
+        $course_id = isset($_POST['course-id']) ? $_POST['course-id'] : '';
         $course_title = isset($_POST['course-title']) ? $_POST['course-title'] : '';
         $course_description = isset($_POST['course-description']) ? $_POST['course-description'] : '';
         $course_category = isset($_POST['course-category']) ? $_POST['course-category'] : '';
         $course_tags = isset($_POST['course-tags']) ? $_POST['course-tags'] : '';
         $course_background = isset($_POST['course-background']) ? $_POST['course-background'] : '';
-        $course_type = isset($_POST['course-type']) ? $_POST['course-type'] : '';
 
         $user_row = Security::isAccessTokenValid();
 
@@ -39,13 +39,10 @@
 
         // Check if user is authorized to perform this action
 
-        if (!in_array($user_row['role'], $authorized_roles)) {
-            $_SESSION['errors'] = ['You are not authorized to perform this action.'];
-            header('Location: /pages/login.php');
-            exit;
-        }
+        $teacher = new Teacher($user_row['user_id'], $user_row['first_name'], $user_row['last_name'], $user_row['email'], '', $user_row['role']);
 
-        $teacher = new Teacher($user_row['user_id'], $user_row['first_name'], $user_row['last_name'], $user_row['email']);
+        Security::authorizedAccess($teacher, $authorized_roles);
+
 
         // Load Category
 
@@ -57,39 +54,7 @@
             exit;
         }
 
-        // Insert New Course
-
-        if ($course_type == "document") {
-            $course = new DocumentCourse(0, $course_title, $course_description, $category, $teacher, 'document');
-
-            // Upload Course Document
-
-            if (isset($_FILES['course-file'])) {
-                if (!$course -> uploadDocument($_FILES['course-file'])) {
-                    $_SESSION["errors"] = $course -> getErrors();
-                    header('Location: /pages/login.php');
-                    exit;
-                }
-            }
-        } else if ($course_type == "video") {
-
-            $course = new VideoCourse(0, $course_title, $course_description, $category, $teacher, 'video');
-
-            // Upload Course Video
-
-            if (isset($_FILES['course-file'])) {
-                if (!$course -> uploadVideo($_FILES['course-file'])) {
-                    $_SESSION["errors"] = $course -> getErrors();
-                    header('Location: /pages/login.php');
-                    exit;
-                }
-            }
-
-        } else {
-            $_SESSION['errors'] = ['Invalid Course type'];
-            header('Location: /pages/login.php');
-            exit;
-        }
+        $course = Course::getCourse($course_id);
 
         // Upload Course Background
 
@@ -101,9 +66,13 @@
             }
         }
 
-        // Insert Course
+        $course -> setTitle($course_title);
+        $course -> setDescription($course_description);
+        $course -> setCategory($category);
 
-        if(!$course -> createCourse()) {
+        // Update Course
+
+        if(!$course -> updateCourse()) {
             $_SESSION['errors'] = $course -> getErrors();
             header('Location: /pages/courses.php');
             exit;

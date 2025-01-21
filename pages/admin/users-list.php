@@ -18,14 +18,16 @@
 
     $user_row = Security::isAccessTokenValid();
 
-    if (!$user_row || !Security::isAuthorized($user_row['role'], $authorized_roles)) {
+    if (!$user_row) {
         header('Location: /pages/login.php');
         exit;
     }
 
     $role = $user_row['role'];
 
-    $user = new Admin($user_row["user_id"], $user_row['first_name'], $user_row['last_name'], $user_row['email']);
+    $user = new Admin($user_row["user_id"], $user_row['first_name'], $user_row['last_name'], $user_row['email'], '', $user_row['role'], $user_row['image_url']);
+
+    Security::authorizedAccess($user, $authorized_roles);
 
     $usersList = Admin::getUsersList();
 
@@ -77,7 +79,7 @@
 
             <?php foreach($usersList as $user): ?>
 
-                <div class="gap-5 flex justify-start items-center mb-3 relative w-full bg-white px-5 shadow py-5 rounded info user">
+                <div class="gap-5 flex justify-start items-center relative w-full bg-white px-5 shadow py-5 rounded info user">
                     <div class="rounded-full w-16 h-16 border-2 border-[#00A5CF] overflow-hidden">
                         <img src="<?php echo $user -> getImageUrl(); ?>" class="w-full h-full" alt="">
                     </div>

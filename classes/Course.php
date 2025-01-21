@@ -113,7 +113,9 @@
 
             $allowed_types = ["image/jpeg", "image/png", "image/webp"];
 
-            if ($file['error'] != 0) {      // Image not uploaded
+            if ($file['error'] == 4) {      // Image not uploaded
+                return true;
+            } else if ($file['error'] != 0) {
                 return false;
             }
 
@@ -206,6 +208,44 @@
             }
 
             return $this -> reviews;
+
+        }
+
+        public function updateCourse() : bool {
+
+            $db = Database::getInstance();
+
+            if (
+                empty($this -> course_id) ||
+                empty($this -> title) ||
+                empty($this -> description) ||
+                empty($this -> category)
+            ) {
+                $this -> errors[] = "Please fill In the form";
+                return false;
+            }
+
+            $columns = [
+                'title',
+                'description',
+                'course_category',
+                'image_path',
+            ];
+
+            $data = [
+                $this -> title,
+                $this -> description,
+                $this -> category -> getCategoryId(),
+                $this -> image_path,
+                $this -> course_id
+            ];
+
+            if (!$db -> update('courses', $columns, "course_id = ?", $data)) {
+                array_push($this -> errors, "Could not save your changes");
+                return false;
+            }
+
+            return true;
 
         }
 
@@ -379,119 +419,6 @@
 
         public abstract function displayCourse() : void;
 
-        // public function updatePost() {
-        //     if (!empty($this -> errors)) {
-        //         return false;
-        //     }
-
-        //     if (
-        //         empty($this -> id) ||
-        //         empty($this -> title) ||
-        //         empty($this -> content)
-        //     ) {
-        //         array_push($this -> errors, "Could not process your request");
-        //         return false;
-        //     }
-
-        //     $columns = [
-        //         'title',
-        //         'content'
-        //     ];
-
-        //     $data = [
-        //         $this -> title,
-        //         $this -> content
-        //     ];
-
-        //     if (!$this -> db -> update('posts', $columns, $data, 'post_id = ?', [$this -> id])) {
-        //         array_push($this -> errors, "Could not save your changes");
-        //         return false;
-        //     }
-
-        //     $this -> db -> delete('post_tags', 'post_id = ?', [$this -> id]);
-
-        //     return true;
-        // }
-
-        // // Method to delete a post
-
-        
-
-        // public function getAllPosts() {
-        //     $posts = $this -> db -> select("SELECT * from posts join users on users.user_id = posts.post_author ORDER BY post_id DESC");
-            
-        //     // Get tags of each post
-
-        //     $tags_groups = [];
-
-        //     foreach($posts as $post) {
-        //         $tags = $this -> db -> select("SELECT * FROM post_tags join tags on tags.tag_id = post_tags.tag_id WHERE post_id = ?", [$post['post_id']]);
-            
-        //         array_push($tags_groups, $tags);
-        //     }
-
-        //     return [$posts, $tags_groups];
-        // }
-
-        // public function getPostData(string $id) {
-        //     if (preg_match('/^[0-9][1-9]*$/', $id) == 0) {
-        //         return false;
-        //     }
-        //     $result = $this -> db -> selectOne("SELECT * FROM posts Where post_id = ?", [$id]);
-
-        //     $this -> setId($result['post_id']);
-        //     $this -> setTitle($result['title']);
-        //     $this -> setContent($result['content']);
-        //     $this -> setImageUrl($result['post_image_url']);
-        //     $this -> setAuthorId($result['post_author']);
-        //     // $this -> setCategoryId($result['post_cat']);
-        //     $this -> setPublishDate($result['publish_date']);
-
-        //     return true;
-        // }
-
-        // // Method to create a comment
-
-        // public function createComment($content, $author_id) {
-
-        //     $new_comment = new Comment($this -> db);
-
-        //     $new_comment -> setContent($content);
-        //     $new_comment -> setAuthorId($author_id);
-
-        //     if (!empty($new_comment -> getErrors())) {
-        //         array_push($this -> errors, "Please fill in the form");
-        //         return false;
-        //     }
-
-        //     if (
-        //         empty($this -> id)
-        //     ) {
-        //         array_push($this -> errors, "Could not process your request");
-        //         return false;
-        //     }
-
-        //     $columns = [
-        //         'content',
-        //         'comment_author',
-        //         'comment_post'
-        //     ];
-
-        //     $data = [
-        //         $content,
-        //         $new_comment -> getAuthorID(),
-        //         $this -> getId()
-        //     ];
-
-        //     if (!$this -> db -> insert('comments', $columns, $data)) {
-        //         array_push($this -> errors, "Could not save your changes");
-        //         return false;
-        //     }
-
-        //     array_push($this -> comments, $new_comment);
-
-        //     return true;
-        // }
 
     }
 

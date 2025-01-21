@@ -4,9 +4,8 @@
         private int $user_id;
         private int $course_id;
         private string $enrollement_date;
-        
 
-        public function __construct(int $user_id = 0, int $course_id = 0, string $enrollement_date) {
+        public function __construct(int $user_id = 0, int $course_id = 0, string $enrollement_date = '') {
             $this -> user_id = $user_id;
             $this -> course_id = $course_id;
             $this -> enrollement_date = $enrollement_date;

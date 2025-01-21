@@ -19,11 +19,11 @@
         $role = $user_row['role'];
 
         if ($role == "teacher") {
-            $user = new Teacher($user_row["user_id"], $user_row['first_name'], $user_row['last_name'], $user_row['email'], '', $role);
+            $user = new Teacher($user_row["user_id"], $user_row['first_name'], $user_row['last_name'], $user_row['email'], '', $role, $user_row['image_url']);
         } else if ($role == "student") {
-            $user = new Student($user_row["user_id"], $user_row['first_name'], $user_row['last_name'], $user_row['email'], '', $role);
+            $user = new Student($user_row["user_id"], $user_row['first_name'], $user_row['last_name'], $user_row['email'], '', $role, $user_row['image_url']);
         } else if ($role == "admin") {
-            $user = new Admin($user_row["user_id"], $user_row['first_name'], $user_row['last_name'], $user_row['email'], '', $role);
+            $user = new Admin($user_row["user_id"], $user_row['first_name'], $user_row['last_name'], $user_row['email'], '', $role, $user_row['image_url']);
         }
 
     }

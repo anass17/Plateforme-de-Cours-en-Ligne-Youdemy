@@ -122,7 +122,7 @@
 
             $db = Database::getInstance();
     
-            $SQL = "SELECT *, courses_count from users U join (Select course_owner, count(*) as courses_count from courses group by course_owner) AS C on C.course_owner = U.user_id WHERE role = 'teacher' and status = 'active' and (first_name LIKE :search or last_name LIKE :search)";
+            $SQL = "SELECT *, if (courses_count is null, 0, courses_count) as courses_count from users U left join (Select course_owner, count(*) as courses_count from courses group by course_owner) AS C on C.course_owner = U.user_id WHERE role = 'teacher' and status = 'active' and (first_name LIKE :search or last_name LIKE :search)";
 
             $result = $db -> selectAll($SQL, [':search' => "%$search%"]);
             $users = [];

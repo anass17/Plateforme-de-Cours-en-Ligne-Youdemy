@@ -76,6 +76,8 @@ function changePage(element, category, page) {
             data.result.forEach(item => {
                 let el = document.createElement('a');
 
+                el.href = "/pages/view.php?id=" + item.id;
+
                 el.className = "bg-[#F0F0F0] rounded-lg border group shadow-lg block";
 
                 let badge;

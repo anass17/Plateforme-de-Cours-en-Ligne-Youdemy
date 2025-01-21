@@ -1,12 +1,15 @@
 let viewCourseModal = document.querySelector('.view-course-modal');
-let viewCourseModalCloseBtn = viewCourseModal.querySelector('.close-btn');
 let openAddModalBtn = document.querySelector('.open-course-modal');
 let actionsBtn = document.querySelector('.actions-btn');
 
-viewCourseModalCloseBtn.addEventListener('click', function () {
-    viewCourseModal.classList.add('hidden');
-    viewCourseModal.classList.remove('flex');
-});
+if (viewCourseModal) {
+    let viewCourseModalCloseBtn = viewCourseModal.querySelector('.close-btn');
+
+    viewCourseModalCloseBtn.addEventListener('click', function () {
+        viewCourseModal.classList.add('hidden');
+        viewCourseModal.classList.remove('flex');
+    });
+}
 
 if (openAddModalBtn != null) {
     openAddModalBtn.addEventListener('click', function () {
@@ -49,10 +52,11 @@ if (deleteCourseBtn) {
 //////////////////////////////
 
 let subscribeLoginModal = document.querySelector('.subscribe-login-modal');
-let subscribeLoginModalCloseBtn = subscribeLoginModal.querySelector('.close-btn');
 let subscribeLogin = document.querySelector('.subscribe-login');
 
 if (subscribeLogin) {
+    let subscribeLoginModalCloseBtn = subscribeLoginModal.querySelector('.close-btn');
+
     subscribeLoginModalCloseBtn.addEventListener('click', function () {
         subscribeLoginModal.classList.add('hidden');
         subscribeLoginModal.classList.remove('flex');
@@ -69,10 +73,11 @@ if (subscribeLogin) {
 //////////////////////////////////
 
 let reviewModal = document.querySelector('.review-modal');
-let reviewModalCloseBtn = reviewModal.querySelector('.close-btn');
 let addReviewBtn = document.querySelector('.add-review-btn');
 
 if (addReviewBtn) {
+    let reviewModalCloseBtn = reviewModal.querySelector('.close-btn');
+    
     reviewModalCloseBtn.addEventListener('click', function () {
         reviewModal.classList.add('hidden');
         reviewModal.classList.remove('flex');
@@ -98,3 +103,23 @@ stars.forEach((star, index) => {
         ratingInput.value = index + 1;
     });
 })
+
+
+//////////////////////////////
+/// Update Course Btn
+//////////////////////////////
+
+let modifyCourseModal = document.querySelector('.modify-course-modal');
+let modifyCourseModalClose = modifyCourseModal.querySelector('.close-btn');
+
+document.querySelector('.update-course-btn').addEventListener('click', function () {
+    actionsBtn.nextElementSibling.classList.toggle('hidden');
+    actionsBtn.nextElementSibling.classList.toggle('flex');
+    modifyCourseModal.classList.remove('hidden');
+    modifyCourseModal.classList.add('flex');
+});
+
+modifyCourseModalClose.addEventListener('click', function () {
+    modifyCourseModal.classList.add('hidden');
+    modifyCourseModal.classList.remove('flex');
+});

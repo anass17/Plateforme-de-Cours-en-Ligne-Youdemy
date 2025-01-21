@@ -14,6 +14,8 @@
     require __DIR__ . '/../classes/Admin.php';
     require __DIR__ . '/../classes/Helpers.php';
 
+    Security::createCSRFToken();
+
     $user_row = Security::isAccessTokenValid();
 
     $role = "";
@@ -23,11 +25,11 @@
         $role = $user_row['role'];
 
         if ($role == "teacher") {
-            $user = new Teacher($user_row["user_id"], $user_row['first_name'], $user_row['last_name'], $user_row['email'], '', $user_row['role']);
+            $user = new Teacher($user_row["user_id"], $user_row['first_name'], $user_row['last_name'], $user_row['email'], '', $user_row['role'], $user_row['image_url']);
         } else if ($role == "student") {
-            $user = new Student($user_row["user_id"], $user_row['first_name'], $user_row['last_name'], $user_row['email'], '', $user_row['role']);
+            $user = new Student($user_row["user_id"], $user_row['first_name'], $user_row['last_name'], $user_row['email'], '', $user_row['role'], $user_row['image_url']);
         } else if ($role == "admin") {
-            $user = new Admin($user_row["user_id"], $user_row['first_name'], $user_row['last_name'], $user_row['email'], '', $user_row['role']);
+            $user = new Admin($user_row["user_id"], $user_row['first_name'], $user_row['last_name'], $user_row['email'], '', $user_row['role'], $user_row['image_url']);
         }
     }
 
@@ -163,7 +165,7 @@
 
                                 <?php else: ?>
 
-                                    <button type="button" class="flex gap-2 items-center">
+                                    <button type="button" class="flex gap-2 items-center update-course-btn">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 fill-blue-600" viewBox="0 0 512 512"><!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M471.6 21.7c-21.9-21.9-57.3-21.9-79.2 0L362.3 51.7l97.9 97.9 30.1-30.1c21.9-21.9 21.9-57.3 0-79.2L471.6 21.7zm-299.2 220c-6.1 6.1-10.8 13.6-13.5 21.9l-29.6 88.8c-2.9 8.6-.6 18.1 5.8 24.6s15.9 8.7 24.6 5.8l88.8-29.6c8.2-2.7 15.7-7.4 21.9-13.5L437.7 172.3 339.7 74.3 172.4 241.7zM96 64C43 64 0 107 0 160L0 416c0 53 43 96 96 96l256 0c53 0 96-43 96-96l0-96c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 96c0 17.7-14.3 32-32 32L96 448c-17.7 0-32-14.3-32-32l0-256c0-17.7 14.3-32 32-32l96 0c17.7 0 32-14.3 32-32s-14.3-32-32-32L96 64z"/></svg>
                                         <span>Update Course</span>
                                     </button>
@@ -403,12 +405,14 @@
             <div class="py-5 px-7">
                 <form action="/validation/edit-course.php" method="POST" enctype="multipart/form-data">
                     <input type="hidden" value="<?php echo $_SESSION["CSRF_token"]; ?>" name="CSRF_token">
+                    <input type="hidden" value="<?php echo $_GET['id']; ?>" name="course-id">
 
                     <div class="mb-4">
                         <p class="mb-1 text-[15px]">Background</p>
-                        <label for="form-course-background" class="file-label mb-2 h-20 bg-blue-200 border border-blue-300 text-gray-800 rounded flex gap-6 text-lg justify-center items-center cursor-pointer">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 fill-gray-800" viewBox="0 0 512 512"><!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M448 80c8.8 0 16 7.2 16 16l0 319.8-5-6.5-136-176c-4.5-5.9-11.6-9.3-19-9.3s-14.4 3.4-19 9.3L202 340.7l-30.5-42.7C167 291.7 159.8 288 152 288s-15 3.7-19.5 10.1l-80 112L48 416.3l0-.3L48 96c0-8.8 7.2-16 16-16l384 0zM64 32C28.7 32 0 60.7 0 96L0 416c0 35.3 28.7 64 64 64l384 0c35.3 0 64-28.7 64-64l0-320c0-35.3-28.7-64-64-64L64 32zm80 192a48 48 0 1 0 0-96 48 48 0 1 0 0 96z"/></svg>
-                            Upload an Image
+                        <label for="form-course-background" class="file-label mb-2 h-40 bg-blue-200 overflow-hidden relative border border-blue-300 text-gray-800 rounded flex gap-6 text-lg justify-center items-center cursor-pointer bg-cover bg-center" style="background-image: url('<?php echo $course_details -> getImagePath(); ?>')">
+                            <div class="w-full h-full bg-black font-semibold opacity-0 hover:opacity-100 transition text-white bg-opacity-50 absolute top-0 left-0 flex justify-center items-center">
+                                Modify Course Background
+                            </div>
                         </label>
                         <input type="file" id="form-course-background" name="course-background" class="hidden"></textarea>
                         <small class="text-red-400 font-semibold"></small>
@@ -447,40 +451,6 @@
                     <div class="mb-4">
                         <label for="form-course-tags" class="block mb-1 text-[15px]">Tags</label>
                         <input type="text" placeholder="Course Tags" id="form-course-tags" name="course-tags" class="w-full px-4 py-2 rounded border outline-none border-blue-200 bg-gray-100 placeholder:text-gray-500">
-                        <small class="text-red-400 font-semibold"></small>
-                    </div>
-
-                    <div class="my-5 text-center">
-                        <h2 class="z-10 relative bg-white inline-block px-3 text-gray-500">Course Ressources</h2>
-                        <div class="w-80 h-px bg-gray-300 mx-auto relative bottom-3"></div>
-                    </div>
-
-                    <p class="mb-1 text-[15px]">Type *</p>
-                    <div class="mb-4 flex gap-3 flex-between">
-                        <div class="flex-1">
-                            <input type="radio" value="video" name="course-type" id="video-course-type" class="custom-radio hidden" <?php if ($course_details -> getType() == 'Video') {echo 'checked';} ?>>
-                            <label for="video-course-type">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 fill-gray-600" viewBox="0 0 576 512"><!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M0 128C0 92.7 28.7 64 64 64l256 0c35.3 0 64 28.7 64 64l0 256c0 35.3-28.7 64-64 64L64 448c-35.3 0-64-28.7-64-64L0 128zM559.1 99.8c10.4 5.6 16.9 16.4 16.9 28.2l0 256c0 11.8-6.5 22.6-16.9 28.2s-23 5-32.9-1.6l-96-64L416 337.1l0-17.1 0-128 0-17.1 14.2-9.5 96-64c9.8-6.5 22.4-7.2 32.9-1.6z"/></svg>
-                                <span>Video</span>
-                            </label>
-                        </div>
-                        <div class="flex-1">
-                            <input type="radio" value="document" name="course-type" id="document-course-type" class="custom-radio hidden" <?php if ($course_details -> getType() == 'Document') {echo 'checked';} ?>>
-                            <label for="document-course-type">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 fill-gray-600" viewBox="0 0 384 512"><!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M0 64C0 28.7 28.7 0 64 0L224 0l0 128c0 17.7 14.3 32 32 32l128 0 0 288c0 35.3-28.7 64-64 64L64 512c-35.3 0-64-28.7-64-64L0 64zm384 64l-128 0L256 0 384 128z"/></svg>
-                                <span>Document</span>
-                            </label>
-                        </div>
-                    </div>
-                    <small class="text-red-400 font-semibold"></small>
-
-                    <div class="mb-4">
-                        <p class="mb-1 text-[15px]">File *</p>
-                        <label for="form-course-file" class="file-label mb-2 h-20 bg-blue-200 border border-blue-300 text-gray-800 rounded flex gap-6 text-lg justify-center items-center cursor-pointer">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="fill-gray-800 w-6 h-6" viewBox="0 0 640 512"><!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M144 480C64.5 480 0 415.5 0 336c0-62.8 40.2-116.2 96.2-135.9c-.1-2.7-.2-5.4-.2-8.1c0-88.4 71.6-160 160-160c59.3 0 111 32.2 138.7 80.2C409.9 102 428.3 96 448 96c53 0 96 43 96 96c0 12.2-2.3 23.8-6.4 34.6C596 238.4 640 290.1 640 352c0 70.7-57.3 128-128 128l-368 0zm79-217c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l39-39L296 392c0 13.3 10.7 24 24 24s24-10.7 24-24l0-134.1 39 39c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-80-80c-9.4-9.4-24.6-9.4-33.9 0l-80 80z"/></svg>    
-                            Upload a File
-                        </label>
-                        <input type="file" id="form-course-file" name="course-file" class="hidden"></textarea>
                         <small class="text-red-400 font-semibold"></small>
                     </div>
 

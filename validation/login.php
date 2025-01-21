@@ -38,7 +38,7 @@
             exit;
         }
 
-        header('Location: /index.php');
+        header('Location: /pages/login.php');
         
     } else {
         header('Location: /pages/login.php');

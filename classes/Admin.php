@@ -79,7 +79,7 @@
             (select count(*) from categories) as categories_count,
             (select count(*) from tags) as tags_count,
             (select count(*) from enrollement) as enrollement_count,
-            (SELECT 0) as reviews_count
+            (SELECT count(*) from reviews) as reviews_count
             from courses;
             ";
 
@@ -124,7 +124,7 @@
             from users U 
             left join (select course_owner, count(*) as courses_count from courses group by course_owner) C on C.course_owner = U.user_id
             where role = 'teacher'
-            order by C.course_owner DESC, user_id ASC
+            order by courses_count DESC, user_id ASC
             Limit 3
             ";
 

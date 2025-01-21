@@ -110,7 +110,7 @@ if (searchInput != null) {
                         let el = document.createElement('div');
 
                         el.innerHTML = `
-                            <a href="pages/view.php?id=${item.id}" class="">
+                            <a href="/pages/view.php?id=${item.id}" class="">
                                 <h3 class="font-semibold text-[#00A5CF] text-md">${item.title}</h3>
                                 <div class="flex justify-between items-center gap-4">
                                     <h4 class="font-medium text-[#6F6F6F] flex items-center gap-2">

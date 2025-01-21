@@ -12,14 +12,14 @@
 
     $user_row = Security::isAccessTokenValid();
 
-    if (!$user_row || !Security::isAuthorized($user_row['role'], $authorized_roles)) {
+    if (!$user_row) {
         header('Location: /pages/login.php');
         exit;
     }
 
-    $role = $user_row['role'];
+    $user = new Admin($user_row["user_id"], $user_row['first_name'], $user_row['last_name'], $user_row['email'], '', $user_row['role'], $user_row['image_url']);
 
-    $user = new Admin($user_row["user_id"], $user_row['first_name'], $user_row['last_name'], $user_row['email']);
+    Security::authorizedAccess($user, $authorized_roles);
 
     $categories = Category::getAllCategories();
     $tags = Tag::getAllTags();

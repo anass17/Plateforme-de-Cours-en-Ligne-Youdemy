@@ -18,14 +18,14 @@
 
     $user_row = Security::isAccessTokenValid();
 
-    if (!$user_row || !Security::isAuthorized($user_row['role'], $authorized_roles)) {
+    if (!$user_row) {
         header('Location: /pages/login.php');
         exit;
     }
 
-    $role = $user_row['role'];
+    $user = new Admin($user_row["user_id"], $user_row['first_name'], $user_row['last_name'], $user_row['email'], '', $user_row['role'], $user_row['image_url']);
 
-    $user = new Admin($user_row["user_id"], $user_row['first_name'], $user_row['last_name'], $user_row['email']);
+    Security::authorizedAccess($user, $authorized_roles);
 
     $globalStats = Admin::getGlobalStatistics();
 
@@ -99,8 +99,8 @@
                 <?php foreach(Admin::getTopTeachers() as $teacher_row): ?>
 
                     <a href="#" class="gap-5 flex justify-start items-center mb-3">
-                        <div class="rounded-full mb-2 w-14 h-14 border-2 border-[#00A5CF]">
-                            <img src="" alt="">
+                        <div class="rounded-full mb-2 w-14 h-14 border-2 border-[#00A5CF] overflow-hidden">
+                            <img src="<?php echo $teacher_row[0] -> getImageUrl(); ?>" alt="">
                         </div>
                         <div class="text-left flex-1">
                             <h3 class="font-semibold"><?php echo $teacher_row[0] -> getFullName(); ?></h3>
@@ -124,8 +124,8 @@
                 <?php foreach(Admin::getTopStudents() as $student): ?>
 
                     <a href="#" class="gap-5 flex justify-start items-center mb-3">
-                        <div class="rounded-full mb-2 w-14 h-14 border-2 border-[#00A5CF]">
-                            <img src="" alt="">
+                        <div class="rounded-full mb-2 w-14 h-14 border-2 border-[#00A5CF] overflow-hidden">
+                            <img src="<?php echo $student[0] -> getImageUrl(); ?>" alt="">
                         </div>
                         <div class="text-left flex-1">
                             <h3 class="font-semibold"><?php echo $student[0] -> getFullName(); ?></h3>

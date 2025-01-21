@@ -57,7 +57,7 @@
     ?>
 
     <?php if (isset($_SESSION['errors'])): ?>
-        <div class="px-5 py-4 rounded border border-red-500 bg-red-100 mb-7 -mt-5 text-center">
+        <div class="px-5 py-4 rounded border border-red-500 bg-red-100 mb-7 mt-5 max-w-2xl mx-auto text-center">
             <ul>
                 <?php
                     foreach($_SESSION["errors"] as $error) {

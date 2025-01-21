@@ -21,7 +21,13 @@ previousBtns.forEach(btn => {
     btn.addEventListener('click', function () {
 
         let category = this.parentElement.dataset.category;
+
+        if (+this.nextElementSibling.firstElementChild.textContent <= 1) {
+            return;
+        }
+
         let page = +this.nextElementSibling.firstElementChild.textContent - 1;
+
         
         changePage(this, category, page);
 
@@ -32,7 +38,7 @@ previousBtns.forEach(btn => {
 
 function changePage(element, category, page) {
 
-    fetch('/api/UserApi.php?keyword=' + category + '&page=' + page, {
+    fetch('/api/CourseApi.php?keyword=' + category + '&page=' + page, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json'

@@ -8,7 +8,7 @@
     require '../classes/Admin.php';
     require '../classes/Category.php';
 
-    // header('Content-Type: application/json');
+    header('Content-Type: application/json');
 
     $authorized_roles = ['admin'];
     

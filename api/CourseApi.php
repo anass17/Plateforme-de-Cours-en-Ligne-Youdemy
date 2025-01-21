@@ -8,6 +8,7 @@
     require '../classes/Admin.php';
     require '../classes/Teacher.php';
     require '../classes/Student.php';
+    require '../classes/Category.php';
     require '../classes/Course.php';
     require '../classes/VideoCourse.php';
     require '../classes/DocumentCourse.php';
@@ -26,21 +27,37 @@
 
     switch ($_SERVER["REQUEST_METHOD"]) {
         
+        // Update user status
+
         case 'GET':
 
-            $search = isset($_GET['search']) ? $_GET['search'] : '';
+            $page = 0;
 
-            $users = User::searchTeachers($search);
+            if (isset($_GET['page'])) {
+                $page = (int) $_GET['page'] - 1 > 0 ? (int) $_GET['page'] - 1 : 0;
+            }
+
+            if (isset($_GET['keyword'])) {
+                $courses = Course::getPageCourses($_GET['keyword'], $page);
+            } else {
+
+                $search = isset($_GET['search']) ? $_GET['search'] : '';
+
+                $courses = Course::searchCourses($search);
+            }
 
             $result = [];
 
-            foreach($users as $user) {
+            foreach($courses as $course) {
                 $result[] = [
-                    'id' => $user[0] -> getUserId(),
-                    'name' => $user[0] -> getFullName(),
-                    'title' => $user[0] -> getTitle(),
-                    'image' => $user[0] -> getImageUrl(),
-                    'courses' => $user[1]
+                    'id' => $course -> getCourseId(),
+                    'title' => $course -> getTitle(),
+                    'image' => $course -> getImagePath(),
+                    'date' => Helpers::format_date($course -> getPublishDate()),
+                    'teacher' => $course -> getTeacher() -> getFullName(),
+                    'type' => $course -> getType(),
+                    'subscriptions' => $course -> getEnrollementsCount(),
+                    'category' => $course -> getCategory() -> getCategoryName()
                 ];
             }
 
@@ -58,8 +75,6 @@
 
 
             break;
-
-        // Update user status
 
         case 'PUT':
 
@@ -100,29 +115,6 @@
 
             break;
 
-        // Delete category
-
-        case 'DELETE':
-
-            $cat_id = isset($data -> catId) ? $data -> catId : '';
-            $cat_name = isset($data -> catName) ? $data -> catName : '';
-
-            $category = new Category((int) $cat_id);
-
-            if (!$category -> deleteCategory()) {
-                echo json_encode([
-                    'status' => false,
-                    'message' => "Could not delete this category"
-                ]);
-            } else {
-                echo json_encode([
-                    'status' => true,
-                    'message' => "$cat_name was successfully deleted"
-                ]);
-            }
-
-            break;
-        
         default:
             echo json_encode([
                 'status' => false,

@@ -103,6 +103,13 @@
             return true;
         }
 
+        public function updateReview() {
+            
+        }
+        public function deleteReview() {
+
+        }
+
         // ------------------------------------
         // Static Methods
         // ------------------------------------

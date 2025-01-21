@@ -375,6 +375,8 @@
         // Abstract Methods
         // ------------------------------------
 
+        public abstract function createCourse();
+
         public abstract function displayCourse() : void;
 
         // public function updatePost() {

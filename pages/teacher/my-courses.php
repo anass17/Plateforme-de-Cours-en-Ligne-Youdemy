@@ -11,6 +11,8 @@
     require __DIR__ . '/../../classes/VideoCourse.php';
     require __DIR__ . '/../../classes/Helpers.php';
 
+    $authorized_roles = ['teacher'];
+
     $role = "";
 
     Security::createCSRFToken();
@@ -24,13 +26,13 @@
         exit;
     }
 
-    $teacher = new Teacher($user_row['user_id']);
+    $role = "teacher";
 
-    $my_courses = $teacher -> getMyCourses();
+    $user = new Teacher($user_row['user_id'], $user_row['first_name'], $user_row['last_name'], $user_row['email'], '', $user_row['role'], $user_row['image_url'], $user_row['register_date'], $user_row['status'], $user_row['title'], $user_row['bio']);
 
-    echo '<pre>';
-    print_r($my_courses);
-    echo '</pre>';
+    Security::authorizedAccess($user, $authorized_roles);
+
+    $my_courses = $user -> getMyCourses();
 
     $categories = Category::getAllCategories();
 
@@ -75,7 +77,7 @@
 
             <!-- My Courses -->
 
-            <h1 class="text-3xl mt-5 mb-10 text-center font-semibold">Your Uploaded Courses</h1>
+            <h1 class="text-3xl mt-5 mb-10 text-center font-semibold">My Uploaded Courses</h1>
 
             <button type="button" class="bg-[#00A5CF] open-add-modal-btn text-white px-6 py-2 rounded font-semibold mb-8 gap-4 flex items-center mx-auto">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 fill-white" viewBox="0 0 448 512"><!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 144L48 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l144 0 0 144c0 17.7 14.3 32 32 32s32-14.3 32-32l0-144 144 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-144 0 0-144z"/></svg>
@@ -142,9 +144,9 @@
                     <input type="hidden" value="<?php echo $_SESSION["CSRF_token"]; ?>" name="CSRF_token">
 
                     <div class="mb-4">
-                        <p class="mb-2">Background</p>
+                        <p class="mb-1 text-[15px]">Background</p>
                         <label for="form-course-background" class="file-label mb-2 h-20 bg-blue-200 border border-blue-300 text-gray-800 rounded flex gap-6 text-lg justify-center items-center cursor-pointer">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="fill-gray-800 w-6 h-6" viewBox="0 0 640 512"><!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M144 480C64.5 480 0 415.5 0 336c0-62.8 40.2-116.2 96.2-135.9c-.1-2.7-.2-5.4-.2-8.1c0-88.4 71.6-160 160-160c59.3 0 111 32.2 138.7 80.2C409.9 102 428.3 96 448 96c53 0 96 43 96 96c0 12.2-2.3 23.8-6.4 34.6C596 238.4 640 290.1 640 352c0 70.7-57.3 128-128 128l-368 0zm79-217c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l39-39L296 392c0 13.3 10.7 24 24 24s24-10.7 24-24l0-134.1 39 39c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-80-80c-9.4-9.4-24.6-9.4-33.9 0l-80 80z"/></svg>    
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 fill-gray-800" viewBox="0 0 512 512"><!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M448 80c8.8 0 16 7.2 16 16l0 319.8-5-6.5-136-176c-4.5-5.9-11.6-9.3-19-9.3s-14.4 3.4-19 9.3L202 340.7l-30.5-42.7C167 291.7 159.8 288 152 288s-15 3.7-19.5 10.1l-80 112L48 416.3l0-.3L48 96c0-8.8 7.2-16 16-16l384 0zM64 32C28.7 32 0 60.7 0 96L0 416c0 35.3 28.7 64 64 64l384 0c35.3 0 64-28.7 64-64l0-320c0-35.3-28.7-64-64-64L64 32zm80 192a48 48 0 1 0 0-96 48 48 0 1 0 0 96z"/></svg>
                             Upload an Image
                         </label>
                         <input type="file" id="form-course-background" name="course-background" class="hidden"></textarea>
@@ -152,19 +154,24 @@
                     </div>
 
                     <div class="mb-4">
-                        <label for="form-course-title" class="block mb-2">Title *</label>
-                        <input type="text" placeholder="course Title" id="form-course-title" name="course-title" class="w-full px-4 py-2 rounded border outline-none border-blue-200 bg-gray-100 placeholder:text-gray-500">
+                        <label for="form-course-title" class="block mb-1 text-[15px]">Title *</label>
+                        <input type="text" placeholder="Course Title" id="form-course-title" name="course-title" class="w-full px-4 py-2 rounded border outline-none border-blue-200 bg-gray-100 placeholder:text-gray-500">
                         <small class="text-red-400 font-semibold"></small>
                     </div>
 
                     <div class="mb-4">
-                        <label for="form-course-description" class="block mb-2">Content *</label>
-                        <textarea type="text" placeholder="course Body" id="form-course-description" name="course-description" class="w-full px-4 py-2 rounded border outline-none h-36 resize-y border-blue-200 bg-gray-100 placeholder:text-gray-500"></textarea>
+                        <label for="form-course-description" class="block mb-1 text-[15px]">Content *</label>
+                        <textarea type="text" placeholder="Course Body" id="form-course-description" name="course-description" class="w-full px-4 py-2 rounded border outline-none h-36 resize-y border-blue-200 bg-gray-100 placeholder:text-gray-500"></textarea>
                         <small class="text-red-400 font-semibold"></small>
                     </div>
 
+                    <div class="my-5 text-center">
+                        <h2 class="z-10 relative bg-white inline-block px-3 text-gray-500">Course Classifying</h2>
+                        <div class="w-80 h-px bg-gray-300 mx-auto relative bottom-3"></div>
+                    </div>
+
                     <div class="mb-4">
-                        <label for="form-course-category" class="block mb-2">Category *</label>
+                        <label for="form-course-category" class="block mb-1 text-[15px]">Category *</label>
                         <select name="course-category" id="form-course-category" class="w-full px-4 py-2 rounded border outline-none border-blue-200 bg-gray-100">
                             <option value="">Select a category</option>
                             <?php foreach($categories as $category): ?>
@@ -177,33 +184,37 @@
                     </div>
 
                     <div class="mb-4">
-                        <div class="flex items-center justify-between mb-2">
-                            <label for="form-course-tags" class="block mb-2">Tags <span class="ml-5 text-gray-500">[<span class="tags-count">0</span>]</span></label>
-                            <button type="button" class="tags-toggle transition-all">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 320 512"><!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M310.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-192 192c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L242.7 256 73.4 86.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l192 192z"/></svg>
-                            </button>
-                        </div>
-                        <div class="">
-                            <div class="*:text-sm grid grid-cols-3 gap-3 *:rounded *:border *:shadow *:py-1.5 overflow-auto no-scrolling tags-container transition-all" style="height: 0px;">
-                                
-                            </div>
-                        </div>
-                        <input type="hidden" id="form-course-tags" name="course-tags" class="w-full px-3 py-2 rounded border outline-none border-blue-200 bg-gray-100 placeholder:text-gray-500">
+                        <label for="form-course-tags" class="block mb-1 text-[15px]">Tags</label>
+                        <input type="text" placeholder="Course Tags" id="form-course-tags" name="course-tags" class="w-full px-4 py-2 rounded border outline-none border-blue-200 bg-gray-100 placeholder:text-gray-500">
                         <small class="text-red-400 font-semibold"></small>
                     </div>
 
-                    <div class="mb-4">
-                        <label for="form-course-type" class="block mb-2">Course Type *</label>
-                        <select name="course-type" id="form-course-type" class="w-full px-4 py-2 rounded border outline-none border-blue-200 bg-gray-100">
-                            <option value="">Select a type</option>
-                            <option value="video">Video</option>
-                            <option value="document">Document</option>
-                        </select>
-                        <small class="text-red-400 font-semibold"></small>
+                    <div class="my-5 text-center">
+                        <h2 class="z-10 relative bg-white inline-block px-3 text-gray-500">Course Ressources</h2>
+                        <div class="w-80 h-px bg-gray-300 mx-auto relative bottom-3"></div>
                     </div>
 
+                    <p class="mb-1 text-[15px]">Type *</p>
+                    <div class="mb-4 flex gap-3 flex-between">
+                        <div class="flex-1">
+                            <input type="radio" value="video" name="course-type" id="video-course-type" class="custom-radio hidden">
+                            <label for="video-course-type">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 fill-gray-600" viewBox="0 0 576 512"><!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M0 128C0 92.7 28.7 64 64 64l256 0c35.3 0 64 28.7 64 64l0 256c0 35.3-28.7 64-64 64L64 448c-35.3 0-64-28.7-64-64L0 128zM559.1 99.8c10.4 5.6 16.9 16.4 16.9 28.2l0 256c0 11.8-6.5 22.6-16.9 28.2s-23 5-32.9-1.6l-96-64L416 337.1l0-17.1 0-128 0-17.1 14.2-9.5 96-64c9.8-6.5 22.4-7.2 32.9-1.6z"/></svg>
+                                <span>Video</span>
+                            </label>
+                        </div>
+                        <div class="flex-1">
+                            <input type="radio" value="document" name="course-type" id="document-course-type" class="custom-radio hidden">
+                            <label for="document-course-type">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 fill-gray-600" viewBox="0 0 384 512"><!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M0 64C0 28.7 28.7 0 64 0L224 0l0 128c0 17.7 14.3 32 32 32l128 0 0 288c0 35.3-28.7 64-64 64L64 512c-35.3 0-64-28.7-64-64L0 64zm384 64l-128 0L256 0 384 128z"/></svg>
+                                <span>Document</span>
+                            </label>
+                        </div>
+                    </div>
+                    <small class="text-red-400 font-semibold"></small>
+
                     <div class="mb-4">
-                        <p class="mb-2">Course File *</p>
+                        <p class="mb-1 text-[15px]">File *</p>
                         <label for="form-course-file" class="file-label mb-2 h-20 bg-blue-200 border border-blue-300 text-gray-800 rounded flex gap-6 text-lg justify-center items-center cursor-pointer">
                             <svg xmlns="http://www.w3.org/2000/svg" class="fill-gray-800 w-6 h-6" viewBox="0 0 640 512"><!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M144 480C64.5 480 0 415.5 0 336c0-62.8 40.2-116.2 96.2-135.9c-.1-2.7-.2-5.4-.2-8.1c0-88.4 71.6-160 160-160c59.3 0 111 32.2 138.7 80.2C409.9 102 428.3 96 448 96c53 0 96 43 96 96c0 12.2-2.3 23.8-6.4 34.6C596 238.4 640 290.1 640 352c0 70.7-57.3 128-128 128l-368 0zm79-217c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l39-39L296 392c0 13.3 10.7 24 24 24s24-10.7 24-24l0-134.1 39 39c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-80-80c-9.4-9.4-24.6-9.4-33.9 0l-80 80z"/></svg>    
                             Upload a File
@@ -212,12 +223,13 @@
                         <small class="text-red-400 font-semibold"></small>
                     </div>
 
-                    <button type="submit" class="h-10 w-32 bg-[#00A5CF] text-white block rounded submit-btn">POST</button>
+                    <button type="submit" class="h-10 w-32 bg-[#00A5CF] text-white block rounded submit-btn mt-6">Publish</button>
                 </form>
             </div>
         </div>
     </div>
 
+    <script src="/assets/js/script.js"></script>
     <script src="/assets/js/my-courses.js"></script>
 
 </body>

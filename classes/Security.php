@@ -205,6 +205,21 @@
             return true;
         }
 
+        public static function authorizedAccess(Student|Admin|Teacher $user, array $authorized_roles) {
+            if (!in_array($user -> getRole(), $authorized_roles)) {
+                header('Location: /pages/login.php');
+                exit;
+            } else {
+                if ($user -> getStatus() == "pending") {
+                    include __DIR__ . '/../pages/messages/pending.php';
+                    exit;
+                } else if ($user -> getStatus() == "banned") {
+                    include __DIR__ . '/../pages/messages/banned.php';
+                    exit;
+                }
+            }
+        }
+
         // ------------------------------------
         // Log Errors
         // ------------------------------------

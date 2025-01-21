@@ -108,7 +108,7 @@
                 if ($row['type'] == "Video") {
                     $course = new VideoCourse($row['course_id'], $row['title'], $row['description'], $category, $teacher, $row['image_path'], $row['file_path'], $row['publish_date'], $row['en_count']);
                 } else {
-                    $course = new DocumentCourse($row['course_id'], $row['title'], $row['description'], $category, $teacher, $row['image_path'], $row['file_path'], $row['publish_date'], $row['en_rount']);
+                    $course = new DocumentCourse($row['course_id'], $row['title'], $row['description'], $category, $teacher, $row['image_path'], $row['file_path'], $row['publish_date'], $row['en_count']);
                 }
                 $courses[] = $course;
             }

@@ -11,6 +11,7 @@
         protected string $enrollements_count;
         protected Category|null $category;
         protected User|null $teacher;
+        protected array $reviews = [];
         protected array $errors = [];
 
         public function __construct(int $course_id = 0, string $course_title = '', string $description = '', Category|null $category = null, User|null $teacher = null, string $image_path = '', string $file_path = '', string $publish_date = '', int $enrollements_count = 0) {
@@ -152,6 +153,19 @@
 
         }
 
+        public function hasPlacedReview(int $user_id) : bool {
+            $db = Database::getInstance();
+
+            $sql = "SELECT * FROM reviews where review_author = ? and review_course = ?";
+
+            if($db -> select($sql, [$user_id, $this -> course_id])) {
+                return true;
+            }
+
+            return false;
+
+        }
+
         public function deleteCourse() : bool {
 
             $db = Database::getInstance();
@@ -173,6 +187,26 @@
             }
 
             return true;
+        }
+
+        public function getCourseReviews() {
+
+            $db = Database::getInstance();
+
+            if (!empty($this -> reviews)) {
+                return $this -> reviews;
+            }
+
+            $reviews_list = $db -> selectAll("SELECT * FROM reviews WHERE review_course = ?", [$this -> course_id]);
+
+            foreach($reviews_list as $review) {
+
+                $instance = new Review($review['review_id'], $review['content'], $review['rating'], $review['publish_date'], $review['review_author']);
+                $this -> reviews[] = $instance;
+            }
+
+            return $this -> reviews;
+
         }
 
         // ------------------------------------
@@ -203,7 +237,8 @@
             as CT on CT.course_category = NR.course_category
             left join (select course_id, count(*) as en_count from enrollement group by course_id) 
             as EN on EN.course_id = NR.course_id
-            where row_num <= $limit;
+            where row_num <= $limit
+            order by en_count DESC
             ";
 
             $result = $db -> selectAll($sql);
@@ -276,6 +311,7 @@
             left join (select course_id, count(*) as en_count from enrollement group by course_id) 
             as EN on EN.course_id = C.course_id
             WHERE cat_name = ?
+            order by en_count DESC
             limit $offset,$limit";
 
             $result = $db -> selectAll($SQL, [$category]);
@@ -283,10 +319,50 @@
             $courses = [];
 
             foreach($result as $row) {
+
+                $teacher = new Teacher($row['user_id'], $row['first_name'], $row['last_name']);
+                $category = new Category($row['cat_id'], $row['cat_name']);
+
                 if ($row['type'] == "Video") {
-                    $instance =  new VideoCourse($row['course_id'], $row['course_title'], $row['description'], null, new Teacher($row['user_id'], $row['first_name'], $row['last_name']), $row['image_path'], '', $row['publish_date'], $row['en_count']);
+                    $instance =  new VideoCourse($row['course_id'], $row['course_title'], $row['description'], $category, $teacher, $row['image_path'], '', $row['publish_date'], $row['en_count']);
                 } else if ($row['type'] == "Document") {
-                    $instance =  new DocumentCourse($row['course_id'], $row['course_title'], $row['description'], null, new Teacher($row['user_id'], $row['first_name'], $row['last_name']), $row['image_path'], '', $row['publish_date'], $row['en_count']);
+                    $instance =  new DocumentCourse($row['course_id'], $row['course_title'], $row['description'], $category, $teacher, $row['image_path'], '', $row['publish_date'], $row['en_count']);
+                }
+                $courses[] = $instance;
+                
+            }
+
+            return $courses;
+        }
+
+        public static function searchCourses(string $search) {
+            $db = Database::getInstance();
+
+            $SQL = "SELECT C.*, U.*, C.title as course_title, Cat.*,
+            if(en_count is null, 0, en_count) as en_count
+            
+            from courses C
+            join categories Cat on Cat.cat_id = C.course_category 
+            join users U on U.user_id = C.course_owner 
+            left join (select course_id, count(*) as en_count from enrollement group by course_id) 
+            as EN on EN.course_id = C.course_id
+            Where C.title LIKE ?
+            order by en_count DESC";
+
+            $result = $db -> selectAll($SQL, ["%$search%"]);
+
+            $courses = [];
+
+            
+            foreach($result as $row) {
+
+                $teacher = new Teacher($row['user_id'], $row['first_name'], $row['last_name']);
+                $category = new Category($row['cat_id'], $row['cat_name']);
+
+                if ($row['type'] == "Video") {
+                    $instance =  new VideoCourse($row['course_id'], $row['course_title'], $row['description'], $category, $teacher, $row['image_path'], '', $row['publish_date'], $row['en_count']);
+                } else if ($row['type'] == "Document") {
+                    $instance =  new DocumentCourse($row['course_id'], $row['course_title'], $row['description'], $category, $teacher, $row['image_path'], '', $row['publish_date'], $row['en_count']);
                 }
                 $courses[] = $instance;
                 

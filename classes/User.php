@@ -118,6 +118,24 @@
             session_destroy();
         }
 
+        public static function searchTeachers(string $search) {
+
+            $db = Database::getInstance();
+    
+            $SQL = "SELECT *, courses_count from users U join (Select course_owner, count(*) as courses_count from courses group by course_owner) AS C on C.course_owner = U.user_id WHERE role = 'teacher' and status = 'active' and (first_name LIKE :search or last_name LIKE :search)";
+
+            $result = $db -> selectAll($SQL, [':search' => "%$search%"]);
+            $users = [];
+
+            foreach($result as $row) {
+                $user = new Teacher($row['user_id'], $row['first_name'], $row['last_name'], $row['email'], $row['password'], $row['role'], $row['image_url'], $row['register_date'], $row['status'], $row['title'], $row['bio']);
+                
+                $users[] = [$user, $row['courses_count']];
+            }
+
+            return $users;
+        }
+
         // ------------------------------------
         // Methods
         // ------------------------------------
@@ -166,10 +184,6 @@
                 return false;
             }
 
-            return true;
-        }
-
-        public function searchTeachers(int $user_id): bool {
             return true;
         }
 

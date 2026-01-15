@@ -211,10 +211,10 @@
                 exit;
             } else {
                 if ($user -> getStatus() == "pending") {
-                    include __DIR__ . '/../pages/messages/pending.php';
+                    include __DIR__ . '/../pages/errors/pending.php';
                     exit;
                 } else if ($user -> getStatus() == "banned") {
-                    include __DIR__ . '/../pages/messages/banned.php';
+                    include __DIR__ . '/../pages/errors/banned.php';
                     exit;
                 }
             }
